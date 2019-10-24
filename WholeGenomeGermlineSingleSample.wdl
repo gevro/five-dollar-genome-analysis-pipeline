@@ -39,14 +39,14 @@ version 1.0
 #import "../../../../structs/dna_seq/germline/GermlineStructs.wdl"
 
 # Git URL import
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/tasks/UnmappedBamToAlignedBam.wdl" as ToBam
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/tasks/AggregatedBamQC.wdl" as AggregatedQC
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/tasks/GermlineVariantDiscovery.wdl" as Calling
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/tasks/Qc.wdl" as QC
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/tasks/Utilities.wdl" as Utils
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/tasks/BamToCram.wdl" as ToCram
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/tasks/VariantCalling.wdl" as ToGvcf
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/structs/GermlineStructs.wdl"
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/UnmappedBamToAlignedBam.wdl" as ToBam
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/AggregatedBamQC.wdl" as AggregatedQC
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/GermlineVariantDiscovery.wdl" as Calling
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/Qc.wdl" as QC
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/Utilities.wdl" as Utils
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/BamToCram.wdl" as ToCram
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/VariantCalling.wdl" as ToGvcf
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/structs/GermlineStructs.wdl"
 
 # WORKFLOW DEFINITION
 workflow WholeGenomeGermlineSingleSample {
@@ -58,7 +58,7 @@ workflow WholeGenomeGermlineSingleSample {
 
     File? haplotype_database_file
     Boolean provide_bam_output = false
-    Boolean use_gatk3_haplotype_caller = true
+    Boolean use_gatk3_haplotype_caller = false
   }
 
   # Not overridable:
@@ -165,7 +165,8 @@ workflow WholeGenomeGermlineSingleSample {
     Array[File] unsorted_read_group_quality_by_cycle_metrics = UnmappedBamToAlignedBam.unsorted_read_group_quality_by_cycle_metrics
     Array[File] unsorted_read_group_quality_distribution_pdf = UnmappedBamToAlignedBam.unsorted_read_group_quality_distribution_pdf
     Array[File] unsorted_read_group_quality_distribution_metrics = UnmappedBamToAlignedBam.unsorted_read_group_quality_distribution_metrics
-
+    Array[String] unsorted_read_group_markilluminaadapters_metrics = UnmappedBamToAlignedBam.unsorted_read_group_markilluminaadapters_metrics
+    
     File read_group_alignment_summary_metrics = AggregatedBamQC.read_group_alignment_summary_metrics
     File read_group_gc_bias_detail_metrics = AggregatedBamQC.read_group_gc_bias_detail_metrics
     File read_group_gc_bias_pdf = AggregatedBamQC.read_group_gc_bias_pdf

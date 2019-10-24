@@ -18,7 +18,7 @@ version 1.0
 #import "../structs/GermlineStructs.wdl"
 
 # Git URL Import
-import "https://raw.githubusercontent.com/gatk-workflows/five-dollar-genome-analysis-pipeline/1.2.0/structs/GermlineStructs.wdl"
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/structs/GermlineStructs.wdl"
 
 # Get version of BWA
 task GetBwaVersion {
@@ -71,10 +71,19 @@ task SamToFastqAndBwaMemAndMba {
     bash_ref_fasta=~{reference_fasta.ref_fasta}
     # if reference_fasta.ref_alt has data in it,
     if [ -s ~{reference_fasta.ref_alt} ]; then
+
+      java -Xms4000m -Xmx4000m -jar /usr/gitc/picard.jar \
+      MarkIlluminaAdapters \
+      INPUT=~{input_bam} \
+      OUTPUT=~{output_bam_basename}.markilluminaadapters.bam \
+      METRICS=~{output_bam_basename}.markilluminaadapters_metrics
+
       java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         SamToFastq \
-        INPUT=~{input_bam} \
+        INPUT=~{output_bam_basename}.markilluminaadapters.bam \
         FASTQ=/dev/stdout \
+        CLIPPING_ATTRIBUTE=XT \
+        CLIPPING_ACTION=2 \
         INTERLEAVE=true \
         NON_PF=true | \
       /usr/gitc/~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
@@ -125,6 +134,7 @@ task SamToFastqAndBwaMemAndMba {
   output {
     File output_bam = "~{output_bam_basename}.bam"
     File bwa_stderr_log = "~{output_bam_basename}.bwa.stderr.log"
+    File markilluminaadapters_metrics = "~{output_bam_basename}.markilluminaadapters_metrics"
   }
 }
 
