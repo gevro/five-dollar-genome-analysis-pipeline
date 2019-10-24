@@ -20,8 +20,8 @@ version 1.0
 #import "../structs/GermlineStructs.wdl"
 
 # Git URL import
-import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/Qc.wdl" as QC
-import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/structs/GermlineStructs.wdl"
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/Qc.wdl" as QC
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/structs/GermlineStructs.wdl"
 
 # WORKFLOW DEFINITION
 workflow AggregatedBamQC {

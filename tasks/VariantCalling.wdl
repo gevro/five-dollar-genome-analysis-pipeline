@@ -7,10 +7,10 @@ version 1.0
 #import "../tasks/BamProcessing.wdl" as BamProcessing
 
 # Git URL Import
-import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/GermlineVariantDiscovery.wdl" as Calling
-import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/Qc.wdl" as QC
-import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/Utilities.wdl" as Utils
-import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/1.2.0/tasks/BamProcessing.wdl" as BamProcessing
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/GermlineVariantDiscovery.wdl" as Calling
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/Qc.wdl" as QC
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/Utilities.wdl" as Utils
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/BamProcessing.wdl" as BamProcessing
 
 workflow VariantCalling {
 
