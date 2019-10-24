@@ -39,7 +39,7 @@ version 1.0
 #import "../../../../structs/dna_seq/germline/GermlineStructs.wdl"
 
 # Git URL import
-import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master /tasks/UnmappedBamToAlignedBam.wdl" as ToBam
+import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/UnmappedBamToAlignedBam.wdl" as ToBam
 import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/AggregatedBamQC.wdl" as AggregatedQC
 import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/GermlineVariantDiscovery.wdl" as Calling
 import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipeline/master/tasks/Qc.wdl" as QC
