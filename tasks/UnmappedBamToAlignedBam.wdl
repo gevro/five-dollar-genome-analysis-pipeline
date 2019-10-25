@@ -249,8 +249,8 @@ workflow UnmappedBamToAlignedBam {
         dbsnp_vcf_index = dbsnp_vcf_index,
         known_indels_sites_vcfs = known_indels_sites_vcfs,
         known_indels_sites_indices = known_indels_sites_indices,
-        ref_dict = reference_fasta.ref_dict,
-        ref_fasta = reference_fasta.ref_fasta,
+        ref_dict = ref_dict,
+        ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         bqsr_scatter = bqsr_divisor,
         preemptible_tries = papi_settings.agg_preemptible_tries
