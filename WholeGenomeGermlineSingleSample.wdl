@@ -54,7 +54,8 @@ workflow WholeGenomeGermlineSingleSample {
 
   String base_file_name
   String final_gvcf_base_name
-  Array[File] flowcell_unmapped_bams
+  File flowcell_unmapped_bams_list
+  Array[File] flowcell_unmapped_bams = read_lines(flowcell_unmapped_bams_list)
   String sample_name
   String unmapped_bam_suffix
 
