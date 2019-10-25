@@ -51,26 +51,87 @@ import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipe
 # WORKFLOW DEFINITION
 workflow WholeGenomeGermlineSingleSample {
   input {
-    SampleAndUnmappedBams sample_and_unmapped_bams
-    GermlineSingleSampleReferences references
-    PapiSettings papi_settings
-    File wgs_coverage_interval_list
 
-    File? haplotype_database_file
-    Boolean provide_bam_output = false
-    Boolean use_gatk3_haplotype_caller = false
+  String base_file_name
+  String final_gvcf_base_name
+  Array[File] flowcell_unmapped_bams
+  String sample_name
+  String unmapped_bam_suffix
+
+  File ref_dict
+  File ref_fasta
+  File ref_fasta_index
+  File ref_alt
+  File ref_sa
+  File ref_amb
+  File ref_bwt
+  File ref_ann
+  File ref_pac
+
+  File? fingerprint_genotypes_file
+  File? fingerprint_genotypes_index
+
+  File contamination_sites_ud
+  File contamination_sites_bed
+  File contamination_sites_mu
+  File calling_interval_list
+
+  Int haplotype_scatter_count
+  Int break_bands_at_multiples_of
+
+  Array[File] known_indels_sites_vcfs
+  Array[File] known_indels_sites_indices
+
+  File dbsnp_vcf
+  File dbsnp_vcf_index
+
+  File evaluation_interval_list
+
+  PapiSettings papi_settings
+  File wgs_coverage_interval_list
+
+  File? haplotype_database_file
+  Boolean provide_bam_output = false
+  Boolean use_gatk3_haplotype_caller = false
   }
 
   # Not overridable:
-  Int read_length = 250
+  Int read_length = 150
   Float lod_threshold = -20.0
   String cross_check_fingerprints_by = "READGROUP"
-  String recalibrated_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.duplicates_marked.recalibrated"
+  String recalibrated_bam_basename = base_file_name + ".aligned.duplicates_marked.recalibrated"
 
   call ToBam.UnmappedBamToAlignedBam {
     input:
-      sample_and_unmapped_bams    = sample_and_unmapped_bams,
-      references                  = references,
+      base_file_name = base_file_name,
+      final_gvcf_base_name = final_gvcf_base_name,
+      flowcell_unmapped_bams = flowcell_unmapped_bams,
+      sample_name = sample_name,
+      unmapped_bam_suffix = unmapped_bam_suffix,
+
+      fingerprint_genotypes_file = fingerprint_genotypes_file,
+      fingerprint_genotypes_index = fingerprint_genotypes_index,
+      contamination_sites_ud = contamination_sites_ud,
+      contamination_sites_bed = contamination_sites_bed,
+      contamination_sites_mu = contamination_sites_mu,
+      calling_interval_list = calling_interval_list,
+      haplotype_scatter_count = haplotype_scatter_count,
+      break_bands_at_multiples_of = break_bands_at_multiples_of,
+      ref_dict = ref_dict,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_alt = ref_alt,
+      ref_sa = ref_sa,
+      ref_amb = ref_amb,
+      ref_bwt = ref_bwt,
+      ref_ann = ref_ann,
+      ref_pac = ref_pac,
+      known_indels_sites_vcfs = known_indels_sites_vcfs,
+      known_indels_sites_indices = known_indels_sites_indices,
+      dbsnp_vcf = dbsnp_vcf,
+      dbsnp_vcf_index = dbsnp_vcf_index,
+      evaluation_interval_list = evaluation_interval_list,
+
       papi_settings               = papi_settings,
 
       cross_check_fingerprints_by = cross_check_fingerprints_by,
@@ -83,23 +144,46 @@ workflow WholeGenomeGermlineSingleSample {
     input:
       base_recalibrated_bam = UnmappedBamToAlignedBam.output_bam,
       base_recalibrated_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      base_name = sample_and_unmapped_bams.base_file_name,
-      sample_name = sample_and_unmapped_bams.sample_name,
+      base_name = base_file_name,
+      sample_name = sample_name,
       recalibrated_bam_base_name = recalibrated_bam_basename,
       haplotype_database_file = haplotype_database_file,
-      references = references,
+      
+      fingerprint_genotypes_file = fingerprint_genotypes_file,
+      fingerprint_genotypes_index = fingerprint_genotypes_index,
+      contamination_sites_ud = contamination_sites_ud,
+      contamination_sites_bed = contamination_sites_bed,
+      contamination_sites_mu = contamination_sites_mu,
+      calling_interval_list = calling_interval_list,
+      haplotype_scatter_count = haplotype_scatter_count,
+      break_bands_at_multiples_of = break_bands_at_multiples_of,
+      ref_dict = ref_dict,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_alt = ref_alt,
+      ref_sa = ref_sa,
+      ref_amb = ref_amb,
+      ref_bwt = ref_bwt,
+      ref_ann = ref_ann,
+      ref_pac = ref_pac,
+      known_indels_sites_vcfs = known_indels_sites_vcfs,
+      known_indels_sites_indices = known_indels_sites_indices,
+      dbsnp_vcf = dbsnp_vcf,
+      dbsnp_vcf_index = dbsnp_vcf_index,
+      evaluation_interval_list = evaluation_interval_list,
+
       papi_settings = papi_settings
   }
 
   call ToCram.BamToCram as BamToCram {
     input:
       input_bam = UnmappedBamToAlignedBam.output_bam,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      ref_dict = references.reference_fasta.ref_dict,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
       duplication_metrics = UnmappedBamToAlignedBam.duplicate_metrics,
       chimerism_metrics = AggregatedBamQC.agg_alignment_summary_metrics,
-      base_file_name = sample_and_unmapped_bams.base_file_name,
+      base_file_name = base_file_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
@@ -108,9 +192,9 @@ workflow WholeGenomeGermlineSingleSample {
     input:
       input_bam = UnmappedBamToAlignedBam.output_bam,
       input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      metrics_filename = sample_and_unmapped_bams.base_file_name + ".wgs_metrics",
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      metrics_filename = base_file_name + ".wgs_metrics",
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       read_length = read_length,
       preemptible_tries = papi_settings.agg_preemptible_tries
@@ -121,9 +205,9 @@ workflow WholeGenomeGermlineSingleSample {
     input:
       input_bam = UnmappedBamToAlignedBam.output_bam,
       input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      metrics_filename = sample_and_unmapped_bams.base_file_name + ".raw_wgs_metrics",
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      metrics_filename = base_file_name + ".raw_wgs_metrics",
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       read_length = read_length,
       preemptible_tries = papi_settings.agg_preemptible_tries
@@ -131,19 +215,19 @@ workflow WholeGenomeGermlineSingleSample {
 
   call ToGvcf.VariantCalling as BamToGvcf {
     input:
-      calling_interval_list = references.calling_interval_list,
-      evaluation_interval_list = references.evaluation_interval_list,
-      haplotype_scatter_count = references.haplotype_scatter_count,
-      break_bands_at_multiples_of = references.break_bands_at_multiples_of,
+      calling_interval_list = calling_interval_list,
+      evaluation_interval_list = evaluation_interval_list,
+      haplotype_scatter_count = haplotype_scatter_count,
+      break_bands_at_multiples_of = break_bands_at_multiples_of,
       contamination = UnmappedBamToAlignedBam.contamination,
       input_bam = UnmappedBamToAlignedBam.output_bam,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      ref_dict = references.reference_fasta.ref_dict,
-      dbsnp_vcf = references.dbsnp_vcf,
-      dbsnp_vcf_index = references.dbsnp_vcf_index,
-      base_file_name = sample_and_unmapped_bams.base_file_name,
-      final_vcf_base_name = sample_and_unmapped_bams.final_gvcf_base_name,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      dbsnp_vcf = dbsnp_vcf,
+      dbsnp_vcf_index = dbsnp_vcf_index,
+      base_file_name = base_file_name,
+      final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
       use_gatk3_haplotype_caller = use_gatk3_haplotype_caller
   }

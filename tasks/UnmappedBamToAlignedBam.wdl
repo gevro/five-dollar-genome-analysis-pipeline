@@ -26,8 +26,41 @@ import "https://raw.githubusercontent.com/gevro/five-dollar-genome-analysis-pipe
 # WORKFLOW DEFINITION
 workflow UnmappedBamToAlignedBam {
   input {
-    SampleAndUnmappedBams sample_and_unmapped_bams
-    GermlineSingleSampleReferences references
+    String base_file_name
+    String final_gvcf_base_name
+    Array[File] flowcell_unmapped_bams
+    String sample_name
+    String unmapped_bam_suffix
+
+    File? fingerprint_genotypes_file
+    File? fingerprint_genotypes_index
+
+    File contamination_sites_ud
+    File contamination_sites_bed
+    File contamination_sites_mu
+    File calling_interval_list
+
+    Int haplotype_scatter_count
+    Int break_bands_at_multiples_of
+
+    File ref_dict
+    File ref_fasta
+    File ref_fasta_index
+    File ref_alt
+    File ref_sa
+    File ref_amb
+    File ref_bwt
+    File ref_ann
+    File ref_pac
+
+    Array[File] known_indels_sites_vcfs
+    Array[File] known_indels_sites_indices
+
+    File dbsnp_vcf
+    File dbsnp_vcf_index
+
+    File evaluation_interval_list
+
     PapiSettings papi_settings
 
     String cross_check_fingerprints_by
@@ -49,11 +82,11 @@ workflow UnmappedBamToAlignedBam {
   # Get the size of the standard reference files as well as the additional reference files needed for BWA
 
   # Align flowcell-level unmapped input bams in parallel
-  scatter (unmapped_bam in sample_and_unmapped_bams.flowcell_unmapped_bams) {
+  scatter (unmapped_bam in flowcell_unmapped_bams) {
 
     Float unmapped_bam_size = size(unmapped_bam, "GiB")
 
-    String unmapped_bam_basename = basename(unmapped_bam, sample_and_unmapped_bams.unmapped_bam_suffix)
+    String unmapped_bam_basename = basename(unmapped_bam, unmapped_bam_suffix)
 
     # QC the unmapped BAM
     call QC.CollectQualityYieldMetrics as CollectQualityYieldMetrics {
@@ -126,8 +159,8 @@ workflow UnmappedBamToAlignedBam {
   call Processing.MarkDuplicates as MarkDuplicates {
     input:
       input_bams = output_aligned_bam,
-      output_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.unsorted.duplicates_marked",
-      metrics_filename = sample_and_unmapped_bams.base_file_name + ".duplicate_metrics",
+      output_bam_basename = base_file_name + ".aligned.unsorted.duplicates_marked",
+      metrics_filename = base_file_name + ".duplicate_metrics",
       total_input_size = SumFloats.total_size,
       compression_level = compression_level,
       preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
@@ -137,7 +170,7 @@ workflow UnmappedBamToAlignedBam {
   call Processing.SortSam as SortSampleBam {
     input:
       input_bam = MarkDuplicates.output_bam,
-      output_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.duplicate_marked.sorted",
+      output_bam_basename = base_file_name + ".aligned.duplicate_marked.sorted",
       compression_level = compression_level,
       preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
   }
@@ -151,7 +184,7 @@ workflow UnmappedBamToAlignedBam {
         input_bams = [ SortSampleBam.output_bam ],
         input_bam_indexes = [SortSampleBam.output_bam_index],
         haplotype_database_file = haplotype_database_file,
-        metrics_filename = sample_and_unmapped_bams.base_file_name + ".crosscheck",
+        metrics_filename = base_file_name + ".crosscheck",
         total_input_size = agg_bam_size,
         lod_threshold = lod_threshold,
         cross_check_by = cross_check_fingerprints_by,
@@ -176,7 +209,7 @@ workflow UnmappedBamToAlignedBam {
       contamination_sites_mu = references.contamination_sites_mu,
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      output_prefix = sample_and_unmapped_bams.base_file_name + ".preBqsr",
+      output_prefix = base_file_name + ".preBqsr",
       preemptible_tries = papi_settings.agg_preemptible_tries,
       contamination_underestimation_factor = 0.75
   }
@@ -194,7 +227,7 @@ workflow UnmappedBamToAlignedBam {
     call Processing.BaseRecalibrator as BaseRecalibrator {
       input:
         input_bam = SortSampleBam.output_bam,
-        recalibration_report_filename = sample_and_unmapped_bams.base_file_name + ".recal_data.csv",
+        recalibration_report_filename = base_file_name + ".recal_data.csv",
         sequence_group_interval = subgroup,
         dbsnp_vcf = references.dbsnp_vcf,
         dbsnp_vcf_index = references.dbsnp_vcf_index,
@@ -213,7 +246,7 @@ workflow UnmappedBamToAlignedBam {
   call Processing.GatherBqsrReports as GatherBqsrReports {
     input:
       input_bqsr_reports = BaseRecalibrator.recalibration_report,
-      output_report_filename = sample_and_unmapped_bams.base_file_name + ".recal_data.csv",
+      output_report_filename = base_file_name + ".recal_data.csv",
       preemptible_tries = papi_settings.preemptible_tries
   }
 
@@ -238,7 +271,7 @@ workflow UnmappedBamToAlignedBam {
   call Processing.GatherSortedBamFiles as GatherBamFiles {
     input:
       input_bams = ApplyBQSR.recalibrated_bam,
-      output_bam_basename = sample_and_unmapped_bams.base_file_name,
+      output_bam_basename = base_file_name,
       total_input_size = agg_bam_size,
       compression_level = compression_level,
       preemptible_tries = papi_settings.agg_preemptible_tries
