@@ -92,7 +92,7 @@ workflow WholeGenomeGermlineSingleSample {
   File wgs_coverage_interval_list
 
   File? haplotype_database_file
-  Boolean provide_bam_output = false
+  Boolean provide_bam_output = true
   Boolean use_gatk3_haplotype_caller = false
   }
 
