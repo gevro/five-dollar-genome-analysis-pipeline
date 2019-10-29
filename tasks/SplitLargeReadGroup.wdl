@@ -98,6 +98,5 @@ workflow SplitLargeReadGroup {
   }
   output {
     File aligned_bam = GatherMonolithicBamFile.output_bam
-    String markilluminaadapters_metrics = "${sep=',' SamToFastqAndBwaMemAndMba.markilluminaadapters_metrics}"
   }
 }

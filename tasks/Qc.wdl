@@ -48,7 +48,6 @@ task CollectUnsortedReadgroupBamQualityMetrics {
   input {
     File input_bam
     String output_bam_prefix
-    String input_markilluminaadapters_metrics
     Int preemptible_tries
   }
 
@@ -86,7 +85,35 @@ task CollectUnsortedReadgroupBamQualityMetrics {
     File quality_by_cycle_metrics = "~{output_bam_prefix}.quality_by_cycle_metrics"
     File quality_distribution_pdf = "~{output_bam_prefix}.quality_distribution.pdf"
     File quality_distribution_metrics = "~{output_bam_prefix}.quality_distribution_metrics"
-    String markilluminaadapters_metrics = "~{input_markilluminaadapters_metrics}"
+  }
+}
+
+# Collect Illumina Adapters metrics
+task MarkIlluminaAdaptersMetrics {
+  input {
+    File input_bam
+    String output_bam_prefix
+    Int preemptible_tries
+  }
+
+  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+
+  command {
+    java -Xms5000m -jar /usr/gitc/picard.jar \
+      MarkIlluminaAdapters \
+      INPUT=~{input_bam} \
+      METRICS=~{output_bam_prefix}.markilluminaadapters_metrics
+
+    touch ~{output_bam_prefix}.markilluminaadapters_metrics
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.1-1540490856"
+    memory: "7 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+    preemptible: preemptible_tries
+  }
+  output {
+    File markilluminaadapters_metrics = "~{output_bam_prefix}.markilluminaadapters_metrics"
   }
 }
 
