@@ -62,7 +62,8 @@ workflow SplitLargeReadGroup {
       input:
         input_bam = unmapped_bam,
         bwa_commandline = bwa_commandline,
-        output_bam_basename = current_name,
+        #output_bam_basename = current_name,
+        output_bam_basename = basename(input_bam,".bam") + "." + current_name,
         
         ref_dict = ref_dict,
         ref_fasta = ref_fasta,
@@ -96,7 +97,16 @@ workflow SplitLargeReadGroup {
       preemptible_tries = preemptible_tries,
       compression_level = compression_level
   }
+
+  call Processing.GatherIlluminaAdaptersMetrics as GatherIlluminaAdaptersMetrics {
+    input:
+      input_illuminaadapters_metrics = SamToFastqAndBwaMemAndMba.illuminaadapters_metrics,
+      output_bam_basename = output_bam_basename,
+      preemptible_tries = preemptible_tries,
+  }
+
   output {
     File aligned_bam = GatherMonolithicBamFile.output_bam
+    File illuminaadapters_metrics = GatherIlluminaAdaptersMetrics.illuminaadapters_metrics
   }
 }
