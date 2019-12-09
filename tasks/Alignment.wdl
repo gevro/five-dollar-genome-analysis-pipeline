@@ -39,6 +39,7 @@ task GetBwaVersion {
 }
 
 # Read unmapped BAM, convert on-the-fly to FASTQ and stream to BWA MEM for alignment, then stream to MergeBamAlignment
+# Gilad: Added option to skip MarkIlluminaAdapters since this causes issues when there are missing paired reads such as in some GeneDx data.
 task SamToFastqAndBwaMemAndMba {
   input {
     File input_bam
@@ -61,6 +62,7 @@ task SamToFastqAndBwaMemAndMba {
 
     Int compression_level
     Int preemptible_tries
+    Boolean skip_MarkIlluminaAdapters
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -80,11 +82,15 @@ task SamToFastqAndBwaMemAndMba {
     # if ref_alt has data in it,
     if [ -s ~{ref_alt} ]; then
 
-      java -Xms4000m -Xmx4000m -jar /usr/gitc/picard.jar \
-      MarkIlluminaAdapters \
-      INPUT=~{input_bam} \
-      OUTPUT=~{output_bam_basename}.illuminaadapters.bam \
-      METRICS=~{output_bam_basename}.illuminaadapters_metrics
+      if [[ "~{skip_MarkIlluminaAdapters}" = "TRUE" ]]; then
+        mv ~{input_bam} ~{output_bam_basename}.illuminaadapters.bam
+      else
+        java -Xms4000m -Xmx4000m -jar /usr/gitc/picard.jar \
+        MarkIlluminaAdapters \
+        INPUT=~{input_bam} \
+        OUTPUT=~{output_bam_basename}.illuminaadapters.bam \
+        METRICS=~{output_bam_basename}.illuminaadapters_metrics
+      fi
 
       java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         SamToFastq \
