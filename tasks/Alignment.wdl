@@ -82,7 +82,7 @@ task SamToFastqAndBwaMemAndMba {
     # if ref_alt has data in it,
     if [ -s ~{ref_alt} ]; then
 
-      if [[ "~{skip_MarkIlluminaAdapters}" = "TRUE" ]]; then
+      if [[ "~{skip_MarkIlluminaAdapters}" = "true" ]]; then
         mv ~{input_bam} ~{output_bam_basename}.illuminaadapters.bam
       else
         java -Xms4000m -Xmx4000m -jar /usr/gitc/picard.jar \
