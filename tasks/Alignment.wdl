@@ -82,15 +82,49 @@ task SamToFastqAndBwaMemAndMba {
     # if ref_alt has data in it,
     if [ -s ~{ref_alt} ]; then
 
-      if [[ "~{skip_MarkIlluminaAdapters}" = "true" ]]; then
-        mv ~{input_bam} ~{output_bam_basename}.illuminaadapters.bam
-      else
+    if [[ "~{skip_MarkIlluminaAdapters}" = "true" ]]; then
+      java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
+        SamToFastq \
+        INPUT=~{input_bam} \
+        FASTQ=/dev/stdout \
+        INTERLEAVE=true \
+        NON_PF=true | \
+      /usr/gitc/~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
+      java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
+        MergeBamAlignment \
+        VALIDATION_STRINGENCY=SILENT \
+        EXPECTED_ORIENTATIONS=FR \
+        ATTRIBUTES_TO_RETAIN=X0 \
+        ATTRIBUTES_TO_REMOVE=NM \
+        ATTRIBUTES_TO_REMOVE=MD \
+        ALIGNED_BAM=/dev/stdin \
+        UNMAPPED_BAM=~{input_bam} \
+        OUTPUT=~{output_bam_basename}.bam \
+        REFERENCE_SEQUENCE=~{ref_fasta} \
+        PAIRED_RUN=true \
+        SORT_ORDER="unsorted" \
+        IS_BISULFITE_SEQUENCE=false \
+        ALIGNED_READS_ONLY=false \
+        CLIP_ADAPTERS=false \
+        MAX_RECORDS_IN_RAM=2000000 \
+        ADD_MATE_CIGAR=true \
+        MAX_INSERTIONS_OR_DELETIONS=-1 \
+        PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
+        PROGRAM_RECORD_ID="bwamem" \
+        PROGRAM_GROUP_VERSION="~{bwa_version}" \
+        PROGRAM_GROUP_COMMAND_LINE="~{bwa_commandline}" \
+        PROGRAM_GROUP_NAME="bwamem" \
+        UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
+        ALIGNER_PROPER_PAIR_FLAGS=true \
+        UNMAP_CONTAMINANT_READS=true \
+        ADD_PG_TAG_TO_READS=false
+    
+    else
         java -Xms4000m -Xmx4000m -jar /usr/gitc/picard.jar \
         MarkIlluminaAdapters \
         INPUT=~{input_bam} \
         OUTPUT=~{output_bam_basename}.illuminaadapters.bam \
         METRICS=~{output_bam_basename}.illuminaadapters_metrics
-      fi
 
       java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         SamToFastq \
@@ -130,8 +164,10 @@ task SamToFastqAndBwaMemAndMba {
         UNMAP_CONTAMINANT_READS=true \
         ADD_PG_TAG_TO_READS=false
 
-      grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \
-      grep -v "read 0 ALT contigs"
+    fi
+
+    grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \
+    grep -v "read 0 ALT contigs"
 
     # else ref_alt is empty or could not be found
     else
