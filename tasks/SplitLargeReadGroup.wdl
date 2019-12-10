@@ -110,6 +110,6 @@ workflow SplitLargeReadGroup {
 
   output {
     File aligned_bam = GatherMonolithicBamFile.output_bam
-    File illuminaadapters_metrics = GatherIlluminaAdaptersMetrics.illuminaadapters_metrics
+    File? illuminaadapters_metrics = GatherIlluminaAdaptersMetrics.illuminaadapters_metrics
   }
 }
