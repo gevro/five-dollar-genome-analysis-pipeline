@@ -256,7 +256,7 @@ workflow WholeGenomeGermlineSingleSample {
     Array[File] unsorted_read_group_quality_by_cycle_metrics = UnmappedBamToAlignedBam.unsorted_read_group_quality_by_cycle_metrics
     Array[File] unsorted_read_group_quality_distribution_pdf = UnmappedBamToAlignedBam.unsorted_read_group_quality_distribution_pdf
     Array[File] unsorted_read_group_quality_distribution_metrics = UnmappedBamToAlignedBam.unsorted_read_group_quality_distribution_metrics
-    Array[File]? unsorted_read_group_illuminaadapters_metrics = UnmappedBamToAlignedBam.unsorted_read_group_illuminaadapters_metrics
+    Array[File] unsorted_read_group_illuminaadapters_metrics = UnmappedBamToAlignedBam.unsorted_read_group_illuminaadapters_metrics
     
     File read_group_alignment_summary_metrics = AggregatedBamQC.read_group_alignment_summary_metrics
     File read_group_gc_bias_detail_metrics = AggregatedBamQC.read_group_gc_bias_detail_metrics

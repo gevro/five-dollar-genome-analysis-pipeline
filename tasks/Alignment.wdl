@@ -118,6 +118,8 @@ task SamToFastqAndBwaMemAndMba {
         ALIGNER_PROPER_PAIR_FLAGS=true \
         UNMAP_CONTAMINANT_READS=true \
         ADD_PG_TAG_TO_READS=false
+
+        echo NULL > ~{output_bam_basename}.illuminaadapters_metrics
     
     else
         java -Xms4000m -Xmx4000m -jar /usr/gitc/picard.jar \
@@ -184,7 +186,7 @@ task SamToFastqAndBwaMemAndMba {
   output {
     File output_bam = "~{output_bam_basename}.bam"
     File bwa_stderr_log = "~{output_bam_basename}.bwa.stderr.log"
-    File? illuminaadapters_metrics = "~{output_bam_basename}.illuminaadapters_metrics"
+    File illuminaadapters_metrics = "~{output_bam_basename}.illuminaadapters_metrics"
   }
 }
 
