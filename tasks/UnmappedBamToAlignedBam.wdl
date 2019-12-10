@@ -146,7 +146,10 @@ workflow UnmappedBamToAlignedBam {
     }
 
     File output_aligned_bam = select_first([SamToFastqAndBwaMemAndMba.output_bam, SplitRG.aligned_bam])
-    File illuminaadapters_metrics = select_first([SamToFastqAndBwaMemAndMba.illuminaadapters_metrics, SplitRG.illuminaadapters_metrics])
+
+    if(!skip_MarkIlluminaAdapters){
+      File illuminaadapters_metrics = select_first([SamToFastqAndBwaMemAndMba.illuminaadapters_metrics, SplitRG.illuminaadapters_metrics])
+    }
 
     Float mapped_bam_size = size(output_aligned_bam, "GiB")
 

@@ -101,11 +101,13 @@ workflow SplitLargeReadGroup {
       compression_level = compression_level
   }
 
-  call Processing.GatherIlluminaAdaptersMetrics as GatherIlluminaAdaptersMetrics {
-    input:
-      input_illuminaadapters_metrics = SamToFastqAndBwaMemAndMba.illuminaadapters_metrics,
-      output_bam_basename = output_bam_basename,
-      preemptible_tries = preemptible_tries,
+  if(!skip_MarkIlluminaAdapters){
+    call Processing.GatherIlluminaAdaptersMetrics as GatherIlluminaAdaptersMetrics {
+      input:
+        input_illuminaadapters_metrics = SamToFastqAndBwaMemAndMba.illuminaadapters_metrics,
+        output_bam_basename = output_bam_basename,
+        preemptible_tries = preemptible_tries,
+    }
   }
 
   output {
