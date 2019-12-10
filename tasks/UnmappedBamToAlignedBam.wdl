@@ -63,8 +63,6 @@ workflow UnmappedBamToAlignedBam {
 
     PapiSettings papi_settings
 
-    Boolean skip_MarkIlluminaAdapters
-
     String cross_check_fingerprints_by
     File? haplotype_database_file
     Float lod_threshold
@@ -117,8 +115,7 @@ workflow UnmappedBamToAlignedBam {
           ref_ann = ref_ann,
           ref_pac = ref_pac,
           compression_level = compression_level,
-          preemptible_tries = papi_settings.preemptible_tries,
-          skip_MarkIlluminaAdapters = skip_MarkIlluminaAdapters
+          preemptible_tries = papi_settings.preemptible_tries
       }
     }
 
@@ -140,13 +137,11 @@ workflow UnmappedBamToAlignedBam {
           ref_pac = ref_pac,
           bwa_version = GetBwaVersion.bwa_version,
           compression_level = compression_level,
-          preemptible_tries = papi_settings.preemptible_tries,
-          skip_MarkIlluminaAdapters = skip_MarkIlluminaAdapters
+          preemptible_tries = papi_settings.preemptible_tries
       }
     }
 
     File output_aligned_bam = select_first([SamToFastqAndBwaMemAndMba.output_bam, SplitRG.aligned_bam])
-
     File illuminaadapters_metrics = select_first([SamToFastqAndBwaMemAndMba.illuminaadapters_metrics, SplitRG.illuminaadapters_metrics])
 
     Float mapped_bam_size = size(output_aligned_bam, "GiB")

@@ -94,10 +94,6 @@ workflow WholeGenomeGermlineSingleSample {
   File? haplotype_database_file
   Boolean provide_bam_output = true
   Boolean use_gatk3_haplotype_caller = false
-
-  #Option for skipping MarkIlluminaAdapters because in some outside data (e.g. from GeneDx) some paired reads are missing one of the reads.
-  #Therefore, this paremeter should be set to "FALSE" unless there are such missing paired reads.
-  Boolean skip_MarkIlluminaAdapters
   }
 
   # Not overridable:
@@ -136,8 +132,6 @@ workflow WholeGenomeGermlineSingleSample {
       dbsnp_vcf = dbsnp_vcf,
       dbsnp_vcf_index = dbsnp_vcf_index,
       evaluation_interval_list = evaluation_interval_list,
-
-      skip_MarkIlluminaAdapters = skip_MarkIlluminaAdapters,
 
       papi_settings               = papi_settings,
 
