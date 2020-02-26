@@ -348,9 +348,9 @@ task ValidateSamFile {
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 40
 
-  Int memory_size = ceil(10 * memory_multiplier)
+  Int memory_size = ceil(15 * memory_multiplier)
   Int java_memory_size = (memory_size - 1) * 1000
 
   command {
