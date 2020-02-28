@@ -526,7 +526,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.1-1540490856"
     preemptible: preemptible_tries
-    memory: "2 GiB"
+    memory: "6 GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
