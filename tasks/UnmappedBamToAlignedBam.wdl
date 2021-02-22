@@ -185,6 +185,8 @@ workflow UnmappedBamToAlignedBam {
     input:
       input_bam = MarkDuplicates.output_bam,
       output_bam_basename = base_file_name + ".aligned.duplicate_marked.sorted",
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
       compression_level = compression_level,
       preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
   }
