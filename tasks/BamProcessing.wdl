@@ -22,6 +22,8 @@ task SortSam {
     String output_bam_basename
     Int preemptible_tries
     Int compression_level
+    File ref_fasta
+    File ref_fasta_index
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
@@ -32,18 +34,25 @@ task SortSam {
     java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -jar /usr/gitc/picard.jar \
       SortSam \
       INPUT=~{input_bam} \
-      OUTPUT=~{output_bam_basename}.bam \
+      OUTPUT=/dev/stdout \
       SORT_ORDER="coordinate" \
-      CREATE_INDEX=true \
-      CREATE_MD5_FILE=true \
-      MAX_RECORDS_IN_RAM=300000
+      CREATE_INDEX=false \
+      CREATE_MD5_FILE=false \
+      MAX_RECORDS_IN_RAM=300000 \
+      | \
+      java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -jar /usr/gitc/picard.jar SetNmMdAndUqTags \
+      --INPUT /dev/stdin \
+      --OUTPUT ~{output_bam_basename}.bam \
+      --CREATE_INDEX true \
+      --CREATE_MD5_FILE true \
+      --REFERENCE_SEQUENCE ${ref_fasta}
 
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.1-1540490856"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "1"
-    memory: "5000 MiB"
+    memory: "9000 MiB"
     preemptible: preemptible_tries
   }
   output {
