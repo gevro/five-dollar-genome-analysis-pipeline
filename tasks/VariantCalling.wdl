@@ -95,6 +95,8 @@ workflow VariantCalling {
         call BamProcessing.SortSam as SortBamout {
           input:
             input_bam = HaplotypeCallerGATK4.bamout,
+            ref_fasta = ref_fasta,
+            ref_fasta_index = ref_fasta_index,
             output_bam_basename = final_vcf_base_name,
             preemptible_tries = agg_preemptible_tries,
             compression_level = 2
