@@ -41,11 +41,11 @@ task SortSam {
       MAX_RECORDS_IN_RAM=300000 \
       | \
       java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -jar /usr/gitc/picard.jar SetNmMdAndUqTags \
-      --INPUT /dev/stdin \
-      --OUTPUT ~{output_bam_basename}.bam \
-      --CREATE_INDEX true \
-      --CREATE_MD5_FILE true \
-      --REFERENCE_SEQUENCE ${ref_fasta}
+      INPUT=/dev/stdin \
+      OUTPUT=~{output_bam_basename}.bam \
+      CREATE_INDEX=true \
+      CREATE_MD5_FILE=true \
+      REFERENCE_SEQUENCE=${ref_fasta}
 
   }
   runtime {
