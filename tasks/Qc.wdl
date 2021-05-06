@@ -151,7 +151,7 @@ task CollectAggregationMetrics {
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 60
 
   command {
     # These are optionally generated, but need to exist for Cromwell's sake
@@ -179,7 +179,7 @@ task CollectAggregationMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.1-1540490856"
-    memory: "7 GiB"
+    memory: "17 GiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }
@@ -426,11 +426,11 @@ task CollectRawWgsMetrics {
     File ref_fasta_index
     Int read_length
     Int preemptible_tries
-    Int memory_multiplier = 1
+    Int memory_multiplier = 1.5
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
-  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 60
 
   Int memory_size = ceil((if (disk_size < 110) then 16 else 20) * memory_multiplier)
   String java_memory_size = (memory_size - 1) * 1000
