@@ -443,7 +443,7 @@ task CheckContamination {
     Boolean disable_sanity_check = false
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB")) + 80
+  Int disk_size = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB")) + 120
 
   command <<<
     set -e
@@ -487,7 +487,7 @@ task CheckContamination {
   >>>
   runtime {
     preemptible: preemptible_tries
-    memory: "4 GiB"
+    memory: "16 GiB"
     disks: "local-disk " + disk_size + " HDD"
     docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:c1cba76e979904eb69c31520a0d7f5be63c72253-1553018888"
     cpu: "2"
