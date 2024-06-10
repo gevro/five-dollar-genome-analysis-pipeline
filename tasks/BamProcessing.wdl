@@ -443,7 +443,7 @@ task CheckContamination {
     Boolean disable_sanity_check = false
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB")) + 400
+  Int disk_size = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB")) + 30
 
   command <<<
     set -e
